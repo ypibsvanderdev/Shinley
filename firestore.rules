@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection — users can read/write their own doc, admin can read all
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == 'meqdad@gmail.com');
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.token.email == 'meqdad@gmail.com';
+    }
+
+    // Bookings collection — authenticated users can create, admin can do everything
+    match /bookings/{bookingId} {
+      allow read: if request.auth != null && request.auth.token.email == 'meqdad@gmail.com';
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.token.email == 'meqdad@gmail.com';
+    }
+  }
+}

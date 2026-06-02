@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shinley Admin Dashboard</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="dashboard.css"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+      <rect x="2" y="2" width="11" height="11" rx="2" fill="#38bdf8"/>
+      <rect x="15" y="2" width="11" height="11" rx="2" fill="#fff" fill-opacity=".4"/>
+      <rect x="2" y="15" width="11" height="11" rx="2" fill="#fff" fill-opacity=".4"/>
+      <rect x="15" y="15" width="11" height="11" rx="2" fill="#38bdf8"/>
+    </svg>
+    <span>Shinley</span>
+    <small>Admin</small>
+  </div>
+  <nav class="sb-nav">
+    <a href="#" class="sb-link active" data-tab="bookings" onclick="showTab('bookings',this)">📅 Bookings</a>
+    <a href="#" class="sb-link" data-tab="customers" onclick="showTab('customers',this)">👥 Customers</a>
+    <a href="#" class="sb-link" data-tab="email" onclick="showTab('email',this)">📧 Send Email</a>
+  </nav>
+  <div class="sb-bottom">
+    <a href="index.html" class="sb-link">← Back to Site</a>
+    <button class="sb-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+</aside>
+
+<!-- MOBILE NAV -->
+<div class="mobile-dash-nav">
+  <button class="mobile-sb-toggle" onclick="document.getElementById('sidebar').classList.toggle('sb-open')">☰ Menu</button>
+  <span class="mobile-dash-title">Shinley Admin</span>
+</div>
+
+<!-- MAIN -->
+<main class="dash-main">
+
+  <!-- HEADER -->
+  <header class="dash-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p id="dashGreeting"></p>
+    </div>
+    <div class="dash-header-right">
+      <span id="dashDate"></span>
+    </div>
+  </header>
+
+  <!-- LOADING -->
+  <div id="dashLoading" class="dash-loading">
+    <div class="loader-spinner-dash"></div>
+    <p>Loading data...</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow" style="display:none">
+    <div class="stat-card"><div class="sc-num" id="statTotal">0</div><div class="sc-label">Total Bookings</div></div>
+    <div class="stat-card pending"><div class="sc-num" id="statPending">0</div><div class="sc-label">Pending</div></div>
+    <div class="stat-card confirmed"><div class="sc-num" id="statConfirmed">0</div><div class="sc-label">Confirmed</div></div>
+    <div class="stat-card today"><div class="sc-num" id="statToday">0</div><div class="sc-label">Today</div></div>
+  </div>
+
+  <!-- BOOKINGS TAB -->
+  <div id="tab-bookings" class="dash-tab" style="display:none">
+    <div class="tab-toolbar">
+      <h2>All Bookings</h2>
+      <div class="filter-btns">
+        <button class="fbtn active" onclick="filterBookings('all',this)">All</button>
+        <button class="fbtn" onclick="filterBookings('pending',this)">Pending</button>
+        <button class="fbtn" onclick="filterBookings('confirmed',this)">Confirmed</button>
+        <button class="fbtn" onclick="filterBookings('cancelled',this)">Cancelled</button>
+      </div>
+      <input type="text" class="search-input" id="bookingSearch" placeholder="Search name or email..." oninput="renderBookingsView()"/>
+      <button class="export-btn" onclick="exportBookings()" title="Export bookings as CSV">📥 Export CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table id="bookingsTable">
+        <thead>
+          <tr>
+            <th>Name</th><th>Email</th><th>Phone</th><th>Service</th>
+            <th>Date</th><th>Time</th><th>Payment</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bookingsTbody"></tbody>
+      </table>
+      <div id="noBookings" class="empty-state hidden">
+        <p>📭 No bookings yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS TAB -->
+  <div id="tab-customers" class="dash-tab hidden">
+    <div class="tab-toolbar">
+      <h2>Registered Customers</h2>
+      <input type="text" class="search-input" id="customerSearch" placeholder="Search name or email..." oninput="renderCustomersView()"/>
+    </div>
+    <div class="table-wrap">
+      <table id="customersTable">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Bookings</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="customersTbody"></tbody>
+      </table>
+      <div id="noCustomers" class="empty-state hidden"><p>📭 No customers yet.</p></div>
+    </div>
+  </div>
+
+  <!-- EMAIL TAB -->
+  <div id="tab-email" class="dash-tab hidden">
+    <div class="tab-toolbar"><h2>Send Email to Customer</h2></div>
+    <div class="email-composer">
+      <div class="ec-group">
+        <label>To (Customer Email)</label>
+        <div class="ec-to-row">
+          <input type="email" id="emailTo" placeholder="customer@email.com"/>
+          <select id="emailCustomerPick" onchange="pickCustomer(this)">
+            <option value="">— Or pick a customer —</option>
+          </select>
+        </div>
+      </div>
+      <div class="ec-group">
+        <label>Template</label>
+        <div class="template-btns">
+          <button class="tbtn" onclick="loadTemplate('full')">📅 Schedule Full</button>
+          <button class="tbtn" onclick="loadTemplate('confirm')">✅ Booking Confirmed</button>
+          <button class="tbtn" onclick="loadTemplate('reschedule')">🔄 Need to Reschedule</button>
+          <button class="tbtn" onclick="loadTemplate('blank')">✏️ Custom Message</button>
+        </div>
+      </div>
+      <div class="ec-group">
+        <label>Subject</label>
+        <input type="text" id="emailSubject" placeholder="Subject line..."/>
+      </div>
+      <div class="ec-group">
+        <label>Message</label>
+        <textarea id="emailBody" rows="8" placeholder="Type your message here..."></textarea>
+      </div>
+      <div class="ec-actions">
+        <button class="btn-send" onclick="sendEmail()">📧 Open in Email App</button>
+        <p class="ec-note">This opens your email app pre-filled and ready to send.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- BOOKING DETAIL MODAL -->
+<div id="detailModal" class="modal-overlay hidden">
+  <div class="detail-box">
+    <button class="modal-close" onclick="closeDetail()">✕</button>
+    <h3>Booking Details</h3>
+    <div id="detailContent"></div>
+    <div class="detail-actions" id="detailActions"></div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div id="deleteModal" class="modal-overlay hidden">
+  <div class="detail-box" style="max-width:380px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:12px">⚠️</div>
+    <h3 style="margin-bottom:8px">Delete Booking?</h3>
+    <p style="color:#94a3b8;font-size:0.9rem;margin-bottom:20px">This cannot be undone.</p>
+    <div class="detail-actions" style="justify-content:center">
+      <button class="act-btn act-cancel" style="padding:10px 20px" onclick="closeDeleteModal()">Cancel</button>
+      <button class="act-btn" style="padding:10px 20px;background:rgba(239,68,68,0.2);color:#ef4444" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="auth.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>
