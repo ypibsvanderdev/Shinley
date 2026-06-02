@@ -123,24 +123,17 @@ function renderBookingArea() {
         <div class="bf-group"><label>Phone</label><input type="tel" id="bPhone" value="${phone}" placeholder="(630) 000-0000" required/></div>
         <div class="bf-group"><label>Email</label><input type="email" id="bEmail" value="${email}" readonly style="opacity:.7"/></div>
       </div>
-      <div class="bf-group"><label>Address (St. Charles, IL)</label><input type="text" id="bAddress" placeholder="123 Main St, St. Charles, IL" required/></div>
-      <div class="bf-row">
-        <div class="bf-group"><label>Service Type</label>
-          <select id="bService" required>
-            <option value="">Select...</option>
-            <option>Small Home (up to 10 windows)</option>
-            <option>Medium Home (10–20 windows)</option>
-            <option>Large Home (20+ windows)</option>
-            <option>Small Business / Storefront</option>
-          </select>
-        </div>
-        <div class="bf-group"><label>Interior Cleaning?</label>
-          <select id="bInterior" required>
-            <option value="">Select...</option>
-            <option>Exterior only</option>
-            <option>Inside &amp; Outside</option>
-          </select>
-        </div>
+      <div class="bf-group"><label>Address (St. Charles or Batavia, IL)</label><input type="text" id="bAddress" placeholder="123 Main St, St. Charles, IL" required/></div>
+      <div class="bf-group"><label>Service Type</label>
+        <select id="bService" required>
+          <option value="">Select...</option>
+          <option>Small Home (up to 10 windows) - Exterior Only</option>
+          <option>Medium Home (10–20 windows) - Exterior Only</option>
+          <option>Large Home (20+ windows) - Exterior Only</option>
+          <option>Small Business / Storefront - Exterior Only</option>
+          <option>Small Business / Storefront - Interior &amp; Exterior</option>
+          <option>Large Business / Showroom (e.g. Slumberland) - Custom Quote</option>
+        </select>
       </div>
       <div class="bf-row">
         <div class="bf-group"><label>Preferred Date</label><input type="date" id="bDate" required/></div>
@@ -179,14 +172,17 @@ async function submitBooking(e) {
   btn.disabled = true;
 
   try {
+    const serviceVal = document.getElementById('bService').value;
+    const interiorVal = (serviceVal.includes('Interior & Exterior') || serviceVal.includes('Custom Quote')) ? 'Inside & Outside' : 'Exterior only';
+
     await addBooking({
       firstName:  document.getElementById('bFirstName').value,
       lastName:   document.getElementById('bLastName').value,
       phone:      document.getElementById('bPhone').value,
       email:      document.getElementById('bEmail').value,
       address:    document.getElementById('bAddress').value,
-      service:    document.getElementById('bService').value,
-      interior:   document.getElementById('bInterior').value,
+      service:    serviceVal,
+      interior:   interiorVal,
       date:       document.getElementById('bDate').value,
       time:       document.getElementById('bTime').value,
       payment:    'cash',
