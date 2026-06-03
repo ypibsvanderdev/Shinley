@@ -300,3 +300,105 @@ window.addEventListener('scroll', () => {
 onAuthReady((user) => {
   renderNavAuth();
 });
+
+// --- BEFORE & AFTER SLIDER ---
+const slider = document.getElementById('sliderRange');
+const sliderContainer = document.getElementById('beforeAfterSlider');
+if (slider && sliderContainer) {
+  slider.addEventListener('input', (e) => {
+    sliderContainer.style.setProperty('--slider-pos', e.target.value + '%');
+  });
+}
+
+// --- FAQ ACCORDION ---
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  if (!item) return;
+  const isActive = item.classList.contains('active');
+  document.querySelectorAll('.faq-item').forEach(x => x.classList.remove('active'));
+  if (!isActive) {
+    item.classList.add('active');
+  }
+}
+
+// --- PRICE ESTIMATOR ---
+function calculateEstimate() {
+  const property = document.getElementById('estProperty').value;
+  const homeSize = document.getElementById('estHomeSize').value;
+  const bizSize = document.getElementById('estBizSize').value;
+  const interior = document.getElementById('estInterior').value;
+  
+  const homeSizeGroup = document.getElementById('estHomeSizeGroup');
+  const bizSizeGroup = document.getElementById('estBizSizeGroup');
+  const interiorGroup = document.getElementById('estInteriorGroup');
+  const priceDisplay = document.getElementById('estPriceDisplay');
+  
+  if (property === 'residential') {
+    homeSizeGroup.classList.remove('hidden');
+    bizSizeGroup.classList.add('hidden');
+    // Residential does not do interior cleaning, force interior to 'no'
+    document.getElementById('estInterior').value = 'no';
+    interiorGroup.style.opacity = '0.5';
+    interiorGroup.style.pointerEvents = 'none';
+    
+    if (homeSize === 'small') priceDisplay.textContent = '$60';
+    else if (homeSize === 'medium') priceDisplay.textContent = '$90';
+    else priceDisplay.textContent = 'Custom Quote';
+  } else {
+    homeSizeGroup.classList.add('hidden');
+    bizSizeGroup.classList.remove('hidden');
+    interiorGroup.style.opacity = '1';
+    interiorGroup.style.pointerEvents = 'auto';
+    
+    if (bizSize === 'large') {
+      priceDisplay.textContent = 'Custom Quote';
+    } else {
+      let base = 50; // Small business exterior
+      if (interior === 'yes') base = 80; // Small business interior & exterior
+      priceDisplay.textContent = '$' + base;
+    }
+  }
+}
+
+function bookEstimate() {
+  const property = document.getElementById('estProperty').value;
+  const homeSize = document.getElementById('estHomeSize').value;
+  const bizSize = document.getElementById('estBizSize').value;
+  const interior = document.getElementById('estInterior').value;
+  const price = document.getElementById('estPriceDisplay').textContent;
+  
+  // Navigate to booking section
+  const bookingSec = document.getElementById('booking');
+  if (bookingSec) bookingSec.scrollIntoView({ behavior: 'smooth' });
+  
+  // Pre-fill form fields
+  setTimeout(() => {
+    const serviceSelect = document.getElementById('bService');
+    const notesInput = document.getElementById('bNotes');
+    
+    if (serviceSelect) {
+      if (property === 'residential') {
+        if (homeSize === 'small') serviceSelect.value = 'Small Home (up to 10 windows) - Exterior Only';
+        else if (homeSize === 'medium') serviceSelect.value = 'Medium Home (10–20 windows) - Exterior Only';
+        else serviceSelect.value = 'Large Home (20+ windows) - Exterior Only';
+      } else {
+        if (bizSize === 'large') {
+          serviceSelect.value = 'Large Business / Showroom (e.g. Slumberland) - Custom Quote';
+        } else {
+          if (interior === 'yes') serviceSelect.value = 'Small Business / Storefront - Interior & Exterior';
+          else serviceSelect.value = 'Small Business / Storefront - Exterior Only';
+        }
+      }
+      // Trigger any change listeners on the select dropdown
+      serviceSelect.dispatchEvent(new Event('change'));
+    }
+    
+    if (notesInput) {
+      notesInput.value = `Instant Price Estimate: ${price}\n` + notesInput.value.replace(/Instant Price Estimate: .*\n/g, '');
+    }
+  }, 800);
+}
+
+// Initial estimation calculation
+calculateEstimate();
+

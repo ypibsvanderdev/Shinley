@@ -167,6 +167,51 @@
     <div class="section-label">Simple Pricing</div>
     <h2>What We <span class="blue-text">Charge</span></h2>
     <p class="section-desc">Straight-up prices, no surprises.</p>
+
+    <!-- ESTIMATOR -->
+    <div class="estimator-box">
+      <h3>🧮 Instant Price Estimator</h3>
+      <p>Select your property details to get an instant estimate of the work.</p>
+      <div class="estimator-form">
+        <div class="est-group">
+          <label>Property Type</label>
+          <select id="estProperty" onchange="calculateEstimate()">
+            <option value="residential">Residential Home</option>
+            <option value="business">Business / Commercial</option>
+          </select>
+        </div>
+        <div class="est-group" id="estHomeSizeGroup">
+          <label>Home Size</label>
+          <select id="estHomeSize" onchange="calculateEstimate()">
+            <option value="small">Small Home (up to 10 windows)</option>
+            <option value="medium">Medium Home (10-20 windows)</option>
+            <option value="large">Large Home (20+ windows)</option>
+          </select>
+        </div>
+        <div class="est-group hidden" id="estBizSizeGroup">
+          <label>Business Size</label>
+          <select id="estBizSize" onchange="calculateEstimate()">
+            <option value="small">Small Storefront / Office</option>
+            <option value="large">Large Showroom / Building</option>
+          </select>
+        </div>
+        <div class="est-group" id="estInteriorGroup">
+          <label>Interior Cleaning?</label>
+          <select id="estInterior" onchange="calculateEstimate()">
+            <option value="no">Exterior Only</option>
+            <option value="yes">Inside &amp; Outside</option>
+          </select>
+        </div>
+      </div>
+      <div class="est-result">
+        <div class="est-price-container">
+          <span class="est-price-label">Estimated Price:</span>
+          <span class="est-price-val" id="estPriceDisplay">$60</span>
+        </div>
+        <button class="btn-blue" onclick="bookEstimate()">Book This Estimate</button>
+      </div>
+    </div>
+
     <div class="pricing-grid">
       <div class="price-card">
         <h3>Small Home</h3><p class="price-sub">Up to 10 windows</p>
@@ -206,6 +251,40 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section id="faq" class="faq">
+  <div class="container">
+    <div class="section-label">Common Questions</div>
+    <h2>Frequently Asked <span class="blue-text">Questions</span></h2>
+    <div class="faq-accordion">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">Do I need to be home for the cleaning? <span>+</span></button>
+        <div class="faq-answer">
+          <p>Since we do exterior window cleaning for homes, you do not need to be home as long as all gates are unlocked and screens are removed from the outside if needed. For businesses requesting interior cleaning, someone will need to let us in.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">What happens if it rains on my scheduled day? <span>+</span></button>
+        <div class="faq-answer">
+          <p>If light rain is expected, we can still perform the cleaning since rain itself doesn't make clean windows dirty (dirt and dust do). However, if there is heavy rain, wind, or thunderstorms, we will contact you to reschedule for the next available clear day.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">How do I pay? <span>+</span></button>
+        <div class="faq-answer">
+          <p>We accept Cash, Zelle, and Apple Pay. We only collect payment once the entire job is finished and you have inspected our work and are completely satisfied.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">Do you clean screens, tracks, and sills? <span>+</span></button>
+        <div class="faq-answer">
+          <p>Yes. Every home and business booking includes wiping down the tracks and sills from the outside. Screens are wiped down as part of our medium and large home packages.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- OUR WORK -->
 <section id="our-work" class="our-work">
   <div class="container">
@@ -213,9 +292,15 @@
     <h2>See the <span class="blue-text">Results</span></h2>
     <p class="section-desc">Here's a look at what clean windows really look like — check out some of our jobs around St. Charles.</p>
     <div class="gallery-grid">
-      <div class="gallery-item">
-        <img src="gallery1.png" alt="Before and after window cleaning" loading="lazy"/>
-        <div class="gallery-caption">Before & After — What a Difference</div>
+      <div class="gallery-item slider-item">
+        <div class="slider-container" id="beforeAfterSlider" style="--slider-pos: 50%;">
+          <img src="gallery_after.png" alt="Clean window" class="slider-img img-after"/>
+          <img src="gallery_before.png" alt="Dirty window" class="slider-img img-before" style="clip-path: inset(0 calc(100% - var(--slider-pos)) 0 0);"/>
+          <input type="range" min="0" max="100" value="50" class="slider-range" id="sliderRange" aria-label="Before and after window cleaning slider"/>
+          <div class="slider-bar"></div>
+          <div class="slider-button">↔</div>
+        </div>
+        <div class="gallery-caption">Drag slider to see Before &amp; After</div>
       </div>
       <div class="gallery-item">
         <img src="gallery2.png" alt="Sparkling clean bay windows" loading="lazy"/>
@@ -289,6 +374,9 @@
       <a href="mailto:Meqdad@gmail.com" class="contact-card"><div class="cc-icon">📧</div><div><strong>Email Us</strong><span>Meqdad@gmail.com</span></div></a>
       <div class="contact-card"><div class="cc-icon">📍</div><div><strong>Service Area</strong><span>St. Charles &amp; Batavia, IL</span></div></div>
       <div class="contact-card"><div class="cc-icon">🕐</div><div><strong>Available</strong><span>Weekdays &amp; Weekends</span></div></div>
+    </div>
+    <div class="contact-map">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d47558.12563385735!2d-88.33703345479634!3d41.8845209772659!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1717000000000!5m2!1sen!2sus" width="100%" height="320" style="border:0;border-radius:12px;box-shadow:0 4px 20px rgba(15,23,42,0.04);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
   </div>
 </section>
