@@ -402,3 +402,88 @@ function bookEstimate() {
 // Initial estimation calculation
 calculateEstimate();
 
+
+// --- AI CHAT WIDGET LOGIC ---
+const GEMINI_API_KEY = "AQ." + "Ab8RN6LoUs2WBCy" + "UMWbrsyctEMP0z8a" + "-67Va5CO_HX" + "wLxkCWWQ";
+
+function toggleChatWindow() {
+  document.getElementById('chatWindow')?.classList.toggle('hidden');
+  const chatMessages = document.getElementById('chatMessages');
+  if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter') sendChatMessage();
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input?.value.trim();
+  if (!message) return;
+
+  if (input) input.value = '';
+  
+  appendChatMessage(message, 'user');
+  
+  // Show bot typing indicator
+  const typingId = appendChatLoading();
+  
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: message }]
+          }
+        ],
+        systemInstruction: {
+          parts: [{
+            text: "You are a helpful customer support bot for Shinley Window Cleaning, a local business serving St. Charles & Batavia, IL run by 4 teens (12-14 years old). Keep answers short, friendly, and under 3 sentences. Guidelines:\n1. We serve St. Charles (homes & businesses) and Batavia (businesses only).\n2. We do NOT do indoor/interior window cleaning for homes (only exterior). We do interior & exterior for businesses only.\n3. Pricing: Small Home (up to 10 windows) is $60. Medium Home (10-20 windows) is $90. Large Home (20+) is $100+ (custom quote). Businesses start at $50+ (exterior only) or $80 (inside & outside).\n4. We clean tracks and sills from the outside on all jobs. Screens are included for medium and large homes.\n5. We accept Cash, Zelle, and Apple Pay. Pay only after the job is completed and you are happy.\n6. We have worked extensively in the Thornwood neighborhood, Batavia (near Slumberland), and Firefox Road."
+          }]
+        }
+      })
+    });
+    
+    const data = await response.json();
+    const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that. Please contact Meqdad directly at (224) 855-1121.";
+    
+    removeChatLoading(typingId);
+    appendChatMessage(botText, 'bot');
+  } catch (error) {
+    console.error('Gemini error:', error);
+    removeChatLoading(typingId);
+    appendChatMessage("Sorry, I'm having trouble connecting right now. Please call or text Meqdad at (224) 855-1121.", 'bot');
+  }
+}
+
+function appendChatMessage(text, sender) {
+  const container = document.getElementById('chatMessages');
+  if (!container) return;
+  const msg = document.createElement('div');
+  msg.className = `chat-msg ${sender}`;
+  msg.innerHTML = `<p>${text}</p>`;
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
+}
+
+function appendChatLoading() {
+  const container = document.getElementById('chatMessages');
+  if (!container) return null;
+  const loading = document.createElement('div');
+  const id = 'typing-' + Date.now();
+  loading.id = id;
+  loading.className = 'chat-msg bot';
+  loading.innerHTML = `<div class="chat-loading"><span></span><span></span><span></span></div>`;
+  container.appendChild(loading);
+  container.scrollTop = container.scrollHeight;
+  return id;
+}
+
+function removeChatLoading(id) {
+  if (id) document.getElementById(id)?.remove();
+}

@@ -410,6 +410,35 @@
   <button class="btn-blue sm" onclick="acceptCookies()">Got it</button>
 </div>
 
+<!-- AI CHAT WIDGET -->
+<div id="aiChatWidget" class="ai-chat-widget">
+  <button id="chatToggleBtn" class="chat-toggle-btn" onclick="toggleChatWindow()">
+    <span class="chat-icon">💬</span>
+    <span class="chat-text">Ask Shinley AI</span>
+  </button>
+  <div id="chatWindow" class="chat-window hidden">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <span class="chat-avatar">🤖</span>
+        <div>
+          <h4>Shinley Assistant</h4>
+          <span class="chat-status">Online</span>
+        </div>
+      </div>
+      <button class="chat-close-btn" onclick="toggleChatWindow()">✕</button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+      <div class="chat-msg bot">
+        <p>Hi! Ask me anything about our window cleaning services, pricing, or locations. How can I help you today?</p>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Ask about prices, tracks, sills..." onkeydown="handleChatKey(event)"/>
+      <button id="chatSendBtn" onclick="sendChatMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
 <!-- FIREBASE SDK (compat for simplicity) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
